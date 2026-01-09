@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Registration</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .status-banner {
+      width: 100%;
+      max-width: 500px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-banner.connected {
+      background: #10b981;
+      color: white;
+    }
+
+    .status-banner.disconnected {
+      background: #ef4444;
+      color: white;
+    }
+
+    .status-banner.checking {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: white;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h2 {
+      color: #1f2937;
+      margin-bottom: 30px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      color: #4b5563;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #f9fafb;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      width: 100%;
+      height: 120px;
+      border: 2px dashed #d1d5db;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f9fafb;
+    }
+
+    .file-input-wrapper:hover {
+      border-color: #667eea;
+      background: #f3f4f6;
+    }
+
+    .file-input-wrapper.has-file {
+      border-color: #10b981;
+      background: #ecfdf5;
+    }
+
+    input[type="file"] {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .file-text {
+      font-size: 14px;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .file-name {
+      font-size: 13px;
+      color: #10b981;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .notification.success {
+      background: #10b981;
+    }
+
+    .notification.error {
+      background: #ef4444;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 30px 20px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      .notification {
+        left: 20px;
+        right: 20px;
+        transform: translateY(-100px);
+      }
+
+      .notification.show {
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="statusBanner" class="status-banner checking">
+  <span class="status-dot"></span>
+  <span id="statusText">Checking connection...</span>
+</div>
+
+<div class="container">
+  <h2>Student Registration</h2>
+
+  <form id="form">
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="name" placeholder="Enter your name" required />
+    </div>
+
+    <div class="form-group">
+      <label for="roll">Roll Number</label>
+      <input type="number" id="roll" name="roll" placeholder="Enter roll number" required />
+    </div>
+
+    <div class="form-group">
+      <label>Photo</label>
+      <div class="file-input-wrapper" id="fileWrapper">
+        <input type="file" id="photo" name="photo" accept="image/*" required />
+        <div class="file-icon">📷</div>
+        <div class="file-text">Click to upload photo</div>
+        <div class="file-name" id="fileName"></div>
+      </div>
+    </div>
+
+    <button type="submit" id="submitBtn">
+      <span id="btnText">Submit Registration</span>
+    </button>
+  </form>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+// ============ CONFIGURATION ============
+const API_BASE = "https://your-backend.onrender.com";
+// =======================================
+
+const API_URL = `${API_BASE}/api/submit`;
+const HEALTH_URL = `${API_BASE}/health`;
+
+// Elements
+const form = document.getElementById("form");
+const submitBtn = document.getElementById("submitBtn");
+const btnText = document.getElementById("btnText");
+const statusBanner = document.getElementById("statusBanner");
+const statusText = document.getElementById("statusText");
+const fileInput = document.getElementById("photo");
+const fileWrapper = document.getElementById("fileWrapper");
+const fileName = document.getElementById("fileName");
+const notification = document.getElementById("notification");
+
+// Check server health
+async function checkHealth() {
+  try {
+    const res = await fetch(HEALTH_URL);
+    if (res.ok) {
+      statusBanner.className = "status-banner connected";
+      statusText.textContent = "🟢 Render : Connected";
+      return true;
+    }
+  } catch (err) {
+    statusBanner.className = "status-banner disconnected";
+    statusText.textContent = "🔴 Render : Disconnected";
+    return false;
+  }
+}
+
+// Initial health check
+checkHealth();
+
+// Check health every 30 seconds
+setInterval(checkHealth, 30000);
+
+// File input handling
+fileInput.addEventListener("change", e => {
+  if (e.target.files.length > 0) {
+    const file = e.target.files[0];
+    fileName.textContent = file.name;
+    fileWrapper.classList.add("has-file");
+  } else {
+    fileName.textContent = "";
+    fileWrapper.classList.remove("has-file");
+  }
+});
+
+// Show notification
+function showNotification(message, type) {
+  notification.textContent = message;
+  notification.className = `notification ${type}`;
+  setTimeout(() => notification.classList.add("show"), 10);
+  
+  setTimeout(() => {
+    notification.classList.remove("show");
+  }, 3000);
+}
+
+// Form submission
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+
+  // Disable button and show loading
+  submitBtn.disabled = true;
+  btnText.innerHTML = '<span class="loading"></span>Submitting...';
+
+  const formData = new FormData(e.target);
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showNotification("Registration successful!", "success");
+      form.reset();
+      fileName.textContent = "";
+      fileWrapper.classList.remove("has-file");
+    } else {
+      showNotification(data.error || "Registration failed", "error");
+    }
+  } catch (err) {
+    showNotification("Network error. Please try again.", "error");
+    console.error(err);
+  } finally {
+    // Re-enable button
+    submitBtn.disabled = false;
+    btnText.textContent = "Submit Registration";
+  }
+});
+</script>
+
+</body>
+</html>
