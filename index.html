@@ -252,6 +252,90 @@
         transform: translateY(0);
       }
     }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 15px;
+    }
+
+    .radio-card {
+      flex: 1;
+      padding: 16px;
+      border-radius: 12px;
+      border: 2px solid #e5e7eb;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+      background: #f9fafb;
+    }
+
+    .radio-card input {
+      display: none;
+    }
+
+    .radio-card.active {
+      border-color: #667eea;
+      background: #eef2ff;
+      color: #4f46e5;
+    }
+
+    .subject-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(110px,1fr));
+      gap: 12px;
+    }
+
+    .subject-chip {
+      padding: 12px;
+      border-radius: 12px;
+      border: 2px solid #e5e7eb;
+      background: #f9fafb;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.25s;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .subject-chip.active {
+      background: #10b981;
+      color: white;
+      border-color: #10b981;
+      transform: scale(1.05);
+    }
+
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slider-value {
+      background: #4f46e5;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    select, input[type="date"], input[type="number"] {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    select:focus, input:focus {
+      border-color: #667eea;
+      background: white;
+    }
+
   </style>
 </head>
 <body>
@@ -264,75 +348,84 @@
 <div class="container">
   <h2>Student Registration</h2>
 
-  <form id="form">
+<form id="form">
 
-    <div class="form-group">
-      <label>Full Name</label>
-      <input type="text" name="name" required />
+  <div class="form-group">
+    <label>Full Name</label>
+    <input type="text" name="name" required>
+  </div>
+
+  <div class="form-group">
+    <label>Roll Number</label>
+    <input type="number" name="roll" required>
+  </div>
+
+  <div class="form-group">
+    <label>Amount</label>
+    <input type="number" step="0.01" name="amount" required>
+  </div>
+
+  <!-- CLASS -->
+  <div class="section">
+    <label>Class</label>
+    <div class="radio-group">
+      <label class="radio-card">
+        <input type="radio" name="class_level" value="10"> Class 10
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="class_level" value="12"> Class 12
+      </label>
     </div>
+  </div>
 
-    <div class="form-group">
-      <label>Roll Number</label>
-      <input type="number" name="roll" required />
+  <!-- SUBJECTS -->
+  <div class="section">
+    <label>Subjects (Choose max 2)</label>
+    <div class="subject-grid" id="subjectsBox"></div>
+  </div>
+
+  <!-- CATEGORY -->
+  <div class="form-group">
+    <label>Category</label>
+    <select name="category" required>
+      <option value="">Select</option>
+      <option value="General">General</option>
+      <option value="OBC">OBC</option>
+      <option value="SC">SC</option>
+      <option value="ST">ST</option>
+    </select>
+  </div>
+
+  <!-- DOB -->
+  <div class="form-group">
+    <label>Date of Birth</label>
+    <input type="date" name="dob" required>
+  </div>
+
+  <!-- RATING -->
+  <div class="section">
+    <label>Rating</label>
+    <div class="slider-wrap">
+      <input type="range" min="0" max="5" value="3" name="rating" id="ratingRange">
+      <div class="slider-value" id="ratingValue">3</div>
     </div>
+  </div>
 
-    <div class="form-group">
-      <label>Amount</label>
-      <input type="number" step="0.01" name="amount" required />
+  <!-- PHOTO -->
+  <div class="form-group">
+    <label>Photo</label>
+    <div class="file-input-wrapper" id="fileWrapper">
+      <input type="file" name="photo" id="photo" accept="image/*" required>
+      <div class="file-icon">📷</div>
+      <div class="file-text">Click to upload photo</div>
+      <div class="file-name" id="fileName"></div>
     </div>
+  </div>
 
-    <!-- CLASS -->
-    <div class="form-group">
-      <label>Class</label>
-      <label><input type="radio" name="class_level" value="10" required /> Class 10</label>
-      <label><input type="radio" name="class_level" value="12" /> Class 12</label>
-    </div>
+  <button type="submit" id="submitBtn">Submit Registration</button>
 
-    <!-- SUBJECTS -->
-    <div class="form-group">
-      <label>Subjects (Select max 2)</label>
-      <div id="subjectsBox"></div>
-    </div>
+</form>
 
-    <!-- DROPDOWN -->
-    <div class="form-group">
-      <label>Category</label>
-      <select name="category" required>
-        <option value="">Select</option>
-        <option value="General">General</option>
-        <option value="OBC">OBC</option>
-        <option value="SC">SC</option>
-        <option value="ST">ST</option>
-      </select>
-    </div>
-
-    <!-- DOB -->
-    <div class="form-group">
-      <label>Date of Birth</label>
-      <input type="date" name="dob" required />
-    </div>
-
-    <!-- RATING -->
-    <div class="form-group">
-      <label>Rating (0–5)</label>
-      <input type="range" min="0" max="5" value="3" name="rating" id="ratingRange" />
-      <span id="ratingValue">3</span>
-    </div>
-
-    <!-- PHOTO -->
-    <div class="form-group">
-      <label>Photo</label>
-      <div class="file-input-wrapper" id="fileWrapper">
-        <input type="file" name="photo" id="photo" accept="image/*" required />
-        <div class="file-icon">📷</div>
-        <div class="file-text">Click to upload photo</div>
-        <div class="file-name" id="fileName"></div>
-      </div>
-    </div>
-
-    <button type="submit" id="submitBtn">Submit Registration</button>
-
-  </form>
 </div>
 
 <div id="notification" class="notification"></div>
@@ -353,29 +446,37 @@ const subjectSets = {
   "12": ["Physics", "Chemistry", "Maths", "Biology", "English"]
 };
 
-document.querySelectorAll("input[name='class_level']").forEach(radio => {
-  radio.addEventListener("change", () => {
-    subjectsBox.innerHTML = "";
-    subjectSets[radio.value].forEach(s => {
-      subjectsBox.innerHTML += `
-        <label>
-          <input type="checkbox" name="subjects" value="${s}" /> ${s}
-        </label><br/>
-      `;
-    });
+// Animate radio cards
+document.querySelectorAll(".radio-card").forEach(card => {
+  card.addEventListener("click", () => {
+    document.querySelectorAll(".radio-card").forEach(c => c.classList.remove("active"));
+    card.classList.add("active");
+
+    const cls = card.querySelector("input").value;
+    renderSubjects(cls);
   });
 });
 
-// Limit 2 subjects
-document.addEventListener("change", e => {
-  if (e.target.name === "subjects") {
-    const checked = document.querySelectorAll("input[name='subjects']:checked");
-    if (checked.length > 2) {
-      e.target.checked = false;
-      alert("Only 2 subjects allowed");
-    }
-  }
-});
+function renderSubjects(cls) {
+  subjectsBox.innerHTML = "";
+
+  subjectSets[cls].forEach(subject => {
+    const chip = document.createElement("div");
+    chip.className = "subject-chip";
+    chip.textContent = subject;
+
+    chip.onclick = () => {
+      const selected = document.querySelectorAll(".subject-chip.active");
+      if (!chip.classList.contains("active") && selected.length >= 2) {
+        alert("You can select only 2 subjects");
+        return;
+      }
+      chip.classList.toggle("active");
+    };
+
+    subjectsBox.appendChild(chip);
+  });
+}
 
 // Health check
 async function checkHealth() {
@@ -389,21 +490,29 @@ async function checkHealth() {
 checkHealth();
 setInterval(checkHealth, 5000);
 
+// File preview
+document.getElementById("photo").addEventListener("change", e => {
+  const file = e.target.files[0];
+  document.getElementById("fileName").textContent = file ? file.name : "";
+  document.getElementById("fileWrapper").classList.toggle("has-file", !!file);
+});
+
 // Submit
 document.getElementById("form").addEventListener("submit", async e => {
   e.preventDefault();
 
-  const form = e.target;
-  const fd = new FormData(form);
+  const formData = new FormData(e.target);
 
-  const selected = [...document.querySelectorAll("input[name='subjects']:checked")].map(x => x.value);
-  selected.forEach(s => fd.append("subjects", s));
+  // Append selected subjects
+  const subjects = [...document.querySelectorAll(".subject-chip.active")].map(s => s.textContent);
+  subjects.forEach(s => formData.append("subjects", s));
 
-  const res = await fetch(API_URL, { method: "POST", body: fd });
+  const res = await fetch(API_URL, { method: "POST", body: formData });
   const data = await res.json();
 
-  alert(data.success ? "Saved" : data.error);
+  alert(data.success ? "Registration successful!" : data.error);
 });
+
 </script>
 
 </body>
