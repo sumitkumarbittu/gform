@@ -265,132 +265,144 @@
   <h2>Student Registration</h2>
 
   <form id="form">
+
     <div class="form-group">
-      <label for="name">Full Name</label>
-      <input type="text" id="name" name="name" placeholder="Enter your name" required />
+      <label>Full Name</label>
+      <input type="text" name="name" required />
     </div>
 
     <div class="form-group">
-      <label for="roll">Roll Number</label>
-      <input type="number" id="roll" name="roll" placeholder="Enter roll number" required />
+      <label>Roll Number</label>
+      <input type="number" name="roll" required />
     </div>
 
+    <div class="form-group">
+      <label>Amount</label>
+      <input type="number" step="0.01" name="amount" required />
+    </div>
+
+    <!-- CLASS -->
+    <div class="form-group">
+      <label>Class</label>
+      <label><input type="radio" name="class_level" value="10" required /> Class 10</label>
+      <label><input type="radio" name="class_level" value="12" /> Class 12</label>
+    </div>
+
+    <!-- SUBJECTS -->
+    <div class="form-group">
+      <label>Subjects (Select max 2)</label>
+      <div id="subjectsBox"></div>
+    </div>
+
+    <!-- DROPDOWN -->
+    <div class="form-group">
+      <label>Category</label>
+      <select name="category" required>
+        <option value="">Select</option>
+        <option value="General">General</option>
+        <option value="OBC">OBC</option>
+        <option value="SC">SC</option>
+        <option value="ST">ST</option>
+      </select>
+    </div>
+
+    <!-- DOB -->
+    <div class="form-group">
+      <label>Date of Birth</label>
+      <input type="date" name="dob" required />
+    </div>
+
+    <!-- RATING -->
+    <div class="form-group">
+      <label>Rating (0–5)</label>
+      <input type="range" min="0" max="5" value="3" name="rating" id="ratingRange" />
+      <span id="ratingValue">3</span>
+    </div>
+
+    <!-- PHOTO -->
     <div class="form-group">
       <label>Photo</label>
       <div class="file-input-wrapper" id="fileWrapper">
-        <input type="file" id="photo" name="photo" accept="image/*" required />
+        <input type="file" name="photo" id="photo" accept="image/*" required />
         <div class="file-icon">📷</div>
         <div class="file-text">Click to upload photo</div>
         <div class="file-name" id="fileName"></div>
       </div>
     </div>
 
-    <button type="submit" id="submitBtn">
-      <span id="btnText">Submit Registration</span>
-    </button>
+    <button type="submit" id="submitBtn">Submit Registration</button>
+
   </form>
 </div>
 
 <div id="notification" class="notification"></div>
 
 <script>
-// ============ CONFIGURATION ============
 const API_BASE = "https://gform-36w5.onrender.com";
-// =======================================
-
 const API_URL = `${API_BASE}/api/submit`;
 const HEALTH_URL = `${API_BASE}/health`;
 
-// Elements
-const form = document.getElementById("form");
-const submitBtn = document.getElementById("submitBtn");
-const btnText = document.getElementById("btnText");
-const statusBanner = document.getElementById("statusBanner");
-const statusText = document.getElementById("statusText");
-const fileInput = document.getElementById("photo");
-const fileWrapper = document.getElementById("fileWrapper");
-const fileName = document.getElementById("fileName");
-const notification = document.getElementById("notification");
+const subjectsBox = document.getElementById("subjectsBox");
+const ratingRange = document.getElementById("ratingRange");
+const ratingValue = document.getElementById("ratingValue");
 
-// Check server health
-async function checkHealth() {
-  try {
-    const res = await fetch(HEALTH_URL);
-    if (res.ok) {
-      statusBanner.className = "status-banner connected";
-      statusText.textContent = "🟢 Render : Connected";
-      return true;
+ratingRange.oninput = () => ratingValue.textContent = ratingRange.value;
+
+const subjectSets = {
+  "10": ["Science", "Social Studies", "IT", "English", "Maths"],
+  "12": ["Physics", "Chemistry", "Maths", "Biology", "English"]
+};
+
+document.querySelectorAll("input[name='class_level']").forEach(radio => {
+  radio.addEventListener("change", () => {
+    subjectsBox.innerHTML = "";
+    subjectSets[radio.value].forEach(s => {
+      subjectsBox.innerHTML += `
+        <label>
+          <input type="checkbox" name="subjects" value="${s}" /> ${s}
+        </label><br/>
+      `;
+    });
+  });
+});
+
+// Limit 2 subjects
+document.addEventListener("change", e => {
+  if (e.target.name === "subjects") {
+    const checked = document.querySelectorAll("input[name='subjects']:checked");
+    if (checked.length > 2) {
+      e.target.checked = false;
+      alert("Only 2 subjects allowed");
     }
-  } catch (err) {
-    statusBanner.className = "status-banner disconnected";
-    statusText.textContent = "🔴 Render : Disconnected";
-    return false;
-  }
-}
-
-// Initial health check
-checkHealth();
-
-// Check health every 30 seconds
-setInterval(checkHealth, 5000);
-
-// File input handling
-fileInput.addEventListener("change", e => {
-  if (e.target.files.length > 0) {
-    const file = e.target.files[0];
-    fileName.textContent = file.name;
-    fileWrapper.classList.add("has-file");
-  } else {
-    fileName.textContent = "";
-    fileWrapper.classList.remove("has-file");
   }
 });
 
-// Show notification
-function showNotification(message, type) {
-  notification.textContent = message;
-  notification.className = `notification ${type}`;
-  setTimeout(() => notification.classList.add("show"), 10);
-  
-  setTimeout(() => {
-    notification.classList.remove("show");
-  }, 3000);
+// Health check
+async function checkHealth() {
+  try {
+    const res = await fetch(HEALTH_URL);
+    document.getElementById("statusText").textContent = res.ok ? "🟢 Connected" : "🔴 Disconnected";
+  } catch {
+    document.getElementById("statusText").textContent = "🔴 Disconnected";
+  }
 }
+checkHealth();
+setInterval(checkHealth, 5000);
 
-// Form submission
-form.addEventListener("submit", async e => {
+// Submit
+document.getElementById("form").addEventListener("submit", async e => {
   e.preventDefault();
 
-  // Disable button and show loading
-  submitBtn.disabled = true;
-  btnText.innerHTML = '<span class="loading"></span>Submitting...';
+  const form = e.target;
+  const fd = new FormData(form);
 
-  const formData = new FormData(e.target);
+  const selected = [...document.querySelectorAll("input[name='subjects']:checked")].map(x => x.value);
+  selected.forEach(s => fd.append("subjects", s));
 
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: formData
-    });
+  const res = await fetch(API_URL, { method: "POST", body: fd });
+  const data = await res.json();
 
-    const data = await res.json();
-
-    if (data.success) {
-      showNotification("Registration successful!", "success");
-      form.reset();
-      fileName.textContent = "";
-      fileWrapper.classList.remove("has-file");
-    } else {
-      showNotification(data.error || "Registration failed", "error");
-    }
-  } catch (err) {
-    showNotification("Network error. Please try again.", "error");
-    console.error(err);
-  } finally {
-    // Re-enable button
-    submitBtn.disabled = false;
-    btnText.textContent = "Submit Registration";
-  }
+  alert(data.success ? "Saved" : data.error);
 });
 </script>
 
