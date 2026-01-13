@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Registration</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .status-banner {
+      width: 100%;
+      max-width: 500px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-banner.connected {
+      background: #10b981;
+      color: white;
+    }
+
+    .status-banner.disconnected {
+      background: #ef4444;
+      color: white;
+    }
+
+    .status-banner.checking {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: white;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h2 {
+      color: #1f2937;
+      margin-bottom: 30px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      color: #4b5563;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #f9fafb;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      width: 100%;
+      height: 120px;
+      border: 2px dashed #d1d5db;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f9fafb;
+    }
+
+    .file-input-wrapper:hover {
+      border-color: #667eea;
+      background: #f3f4f6;
+    }
+
+    .file-input-wrapper.has-file {
+      border-color: #10b981;
+      background: #ecfdf5;
+    }
+
+    input[type="file"] {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .file-text {
+      font-size: 14px;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .file-name {
+      font-size: 13px;
+      color: #10b981;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .notification.success {
+      background: #10b981;
+    }
+
+    .notification.error {
+      background: #ef4444;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 30px 20px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      .notification {
+        left: 20px;
+        right: 20px;
+        transform: translateY(-100px);
+      }
+
+      .notification.show {
+        transform: translateY(0);
+      }
+    }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 15px;
+    }
+
+    .radio-card {
+      flex: 1;
+      padding: 16px;
+      border-radius: 12px;
+      border: 2px solid #e5e7eb;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+      background: #f9fafb;
+    }
+
+    .radio-card input {
+      display: none;
+    }
+
+    .radio-card.active {
+      border-color: #667eea;
+      background: #eef2ff;
+      color: #4f46e5;
+    }
+
+    .subject-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(110px,1fr));
+      gap: 12px;
+    }
+
+    .subject-chip {
+      padding: 12px;
+      border-radius: 12px;
+      border: 2px solid #e5e7eb;
+      background: #f9fafb;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.25s;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .subject-chip.active {
+      background: #10b981;
+      color: white;
+      border-color: #10b981;
+      transform: scale(1.05);
+    }
+
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slider-value {
+      background: #4f46e5;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    select, input[type="date"], input[type="number"] {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    select:focus, input:focus {
+      border-color: #667eea;
+      background: white;
+    }
+
+  </style>
+</head>
+<body>
+
+<div id="statusBanner" class="status-banner checking">
+  <span class="status-dot"></span>
+  <span id="statusText">Checking connection...</span>
+</div>
+
+<div class="container">
+  <h2>Student Registration</h2>
+
+<form id="form">
+
+  <div class="form-group">
+    <label>Full Name</label>
+    <input type="text" name="name" required>
+  </div>
+
+  <div class="form-group">
+    <label>Roll Number</label>
+    <input type="number" name="roll" required>
+  </div>
+
+  <div class="form-group">
+    <label>Amount</label>
+    <input type="number" step="0.01" name="amount" required>
+  </div>
+
+  <!-- CLASS -->
+  <div class="section">
+    <label>Class</label>
+    <div class="radio-group">
+      <label class="radio-card">
+        <input type="radio" name="class_level" value="10"> Class 10
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="class_level" value="12"> Class 12
+      </label>
+    </div>
+  </div>
+
+  <!-- SUBJECTS -->
+  <div class="section">
+    <label>Subjects (Choose max 2)</label>
+    <div class="subject-grid" id="subjectsBox"></div>
+  </div>
+
+  <!-- CATEGORY -->
+  <div class="form-group">
+    <label>Category</label>
+    <select name="category" required>
+      <option value="">Select</option>
+      <option value="General">General</option>
+      <option value="OBC">OBC</option>
+      <option value="SC">SC</option>
+      <option value="ST">ST</option>
+    </select>
+  </div>
+
+  <!-- DOB -->
+  <div class="form-group">
+    <label>Date of Birth</label>
+    <input type="date" name="dob" required>
+  </div>
+
+  <!-- RATING -->
+  <div class="section">
+    <label>Rating</label>
+    <div class="slider-wrap">
+      <input type="range" min="0" max="5" value="3" name="rating" id="ratingRange">
+      <div class="slider-value" id="ratingValue">3</div>
+    </div>
+  </div>
+
+  <!-- PHOTO -->
+  <div class="form-group">
+    <label>Photo</label>
+    <div class="file-input-wrapper" id="fileWrapper">
+      <input type="file" name="photo" id="photo" accept="image/*" required>
+      <div class="file-icon">📷</div>
+      <div class="file-text">Click to upload photo</div>
+      <div class="file-name" id="fileName"></div>
+    </div>
+  </div>
+
+  <button type="submit" id="submitBtn">Submit Registration</button>
+
+</form>
+
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+const API_BASE = "https://gform-36w5.onrender.com";
+const API_URL = `${API_BASE}/api/submit`;
+const HEALTH_URL = `${API_BASE}/health`;
+
+const subjectsBox = document.getElementById("subjectsBox");
+const ratingRange = document.getElementById("ratingRange");
+const ratingValue = document.getElementById("ratingValue");
+
+ratingRange.oninput = () => ratingValue.textContent = ratingRange.value;
+
+const subjectSets = {
+  "10": ["Science", "Social Studies", "IT", "English", "Maths"],
+  "12": ["Physics", "Chemistry", "Maths", "Biology", "English"]
+};
+
+// Animate radio cards
+document.querySelectorAll(".radio-card").forEach(card => {
+  card.addEventListener("click", () => {
+    document.querySelectorAll(".radio-card").forEach(c => c.classList.remove("active"));
+    card.classList.add("active");
+
+    const cls = card.querySelector("input").value;
+    renderSubjects(cls);
+  });
+});
+
+function renderSubjects(cls) {
+  subjectsBox.innerHTML = "";
+
+  subjectSets[cls].forEach(subject => {
+    const chip = document.createElement("div");
+    chip.className = "subject-chip";
+    chip.textContent = subject;
+
+    chip.onclick = () => {
+      const selected = document.querySelectorAll(".subject-chip.active");
+      if (!chip.classList.contains("active") && selected.length >= 2) {
+        alert("You can select only 2 subjects");
+        return;
+      }
+      chip.classList.toggle("active");
+    };
+
+    subjectsBox.appendChild(chip);
+  });
+}
+
+// Health check
+async function checkHealth() {
+  try {
+    const res = await fetch(HEALTH_URL);
+    document.getElementById("statusText").textContent = res.ok ? "🟢 Connected" : "🔴 Disconnected";
+  } catch {
+    document.getElementById("statusText").textContent = "🔴 Disconnected";
+  }
+}
+checkHealth();
+setInterval(checkHealth, 5000);
+
+// File preview
+document.getElementById("photo").addEventListener("change", e => {
+  const file = e.target.files[0];
+  document.getElementById("fileName").textContent = file ? file.name : "";
+  document.getElementById("fileWrapper").classList.toggle("has-file", !!file);
+});
+
+// Submit
+document.getElementById("form").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const formData = new FormData(e.target);
+
+  // Append selected subjects
+  const subjects = [...document.querySelectorAll(".subject-chip.active")].map(s => s.textContent);
+  subjects.forEach(s => formData.append("subjects", s));
+
+  const res = await fetch(API_URL, { method: "POST", body: formData });
+  const data = await res.json();
+
+  alert(data.success ? "Registration successful!" : data.error);
+});
+
+</script>
+
+</body>
+</html>
